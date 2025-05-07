@@ -16,7 +16,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@camunda8/sdk": "^8.5.0",
+    "@camunda8/sdk": "^8.7.5",
     "chalk": "^5.0.0",
     "dotenv": "^16.0.3"
   }
