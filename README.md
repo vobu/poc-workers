@@ -1,29 +1,44 @@
-# Camunda 8 SDK for Node.js Demo
 
-This is a demo of the [Camunda 8 SDK for Node.js](https://www.npmjs.com/package/@camunda8/sdk).
+# Camunda 8 PoC Worker
 
-It requires either a Camunda 8 Platform SaaS account, which you can get for free [here](https://signup.camunda.com/accounts), or running the Self-Managed stack via docker-compose using the configuration [here]([https://github.com/camunda/camunda-platform](https://github.com/camunda/camunda-8-js-sdk/blob/main/docker/docker-compose-multitenancy.yml)).
+This project includes three example workers:
+
+- **Confluence Worker**: Serves page content from a local JSON file.
+- **SharePoint Worker**: Serves page content from a local JSON file.
+- **SSL Labs Worker**: Fetches and parses SSL Labs reports for a given domain.
+
+You can run this demo against Camunda 8 Platform SaaS (get a free account [here](https://signup.camunda.com/accounts)) or a self-managed stack via docker-compose ([setup instructions](https://github.com/camunda/camunda-8-js-sdk/blob/main/docker/docker-compose-multitenancy.yml)).
+
 
 ## Setup
 
-- Clone the repository locally, then install dependencies:
-
-```bash
-npm i
-```
+- Clone the repository locally
 
 - Create a cluster in Camunda 8 Platform SaaS
 - Create an API client in the Web Console (instructions [here](https://docs.camunda.io/docs/next/guides/setup-client-connection-credentials/))
-- Put the client credentials environment variables in a file `.env` in the root of the project
-- Run the application with `npm start`
+- Copy `.env.example` to `.env` and fill in your credentials:
+
+	```bash
+	cp .env.example .env
+	# Edit .env and add your values
+	```
+
+- Run the application using Docker:
+
+	```bash
+	docker-compose up --build
+	```
+
 
 ## Operation
 
-The application will deploy a BPMN process model to the cluster, then start an instance. A task worker services the first task. These operations use the Zeebe API.
+This application starts three Zeebe workers:
 
-The next task in the process model is a human task. The Tasklist API is used to claim, then complete the task. This is accomplished by a "human task worker" that polls every three seconds.
+- **Confluence Worker**: Handles jobs of type `confluence`. It looks up a page name in `confluence-pages.json` and returns the page content if found, or a list of available pages if not.
+- **SharePoint Worker**: Handles jobs of type `sharepoint`. It looks up a page name in `sharepoint-pages.json` and returns the page content if found, or a list of available pages if not.
+- **SSL Labs Worker**: Handles jobs of type `ssllabs`. It fetches an SSL Labs report for a given domain by scraping the public SSL Labs site, waits for the report to be ready, and parses the results into structured data. If the report is not ready after several attempts, it returns an error.
 
-Finally, the Operate API is used to retrieve the XML of the process model.
+Each worker logs its activity to the console with colored prefixes for easy identification. The workers use environment variables for configuration, which are loaded from the `.env` file.
 
 ## Credentials
 

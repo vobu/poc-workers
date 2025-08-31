@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import {Camunda8} from '@camunda8/sdk'
 
 import chalk from 'chalk'
@@ -7,86 +8,121 @@ config()
 
 const c8 = new Camunda8()
 const zbc = c8.getZeebeGrpcApiClient()
-const operate = c8.getOperateApiClient()
-const optimize = c8.getOptimizeApiClient() // unused
-const tasklist = c8.getTasklistApiClient()
 
 const getLogger = (prefix: string, color: any) => (msg: string) => console.log(color(`[${prefix}] ${msg}`))
 
-async function main() {
-    const log = getLogger('Zeebe', chalk.greenBright) 
-    zbc 
-    const res = await zbc.deployResource({
-        processFilename: path.join(process.cwd(), 'resources', 'c8-sdk-demo.bpmn') 
-    })
-    log(`Deployed process ${res.deployments[0].process.bpmnProcessId}`)
 
-    const p = await zbc.createProcessInstanceWithResult({
-        bpmnProcessId: `c8-sdk-demo`, 
-        variables:{
-            humanTaskStatus: 'Needs doing'
-        }
-    })
+import * as fs from 'fs'
 
-    log(`Finished Process Instance ${p.processInstanceKey}`)
-    log(`humanTaskStatus is "${p.variables.humanTaskStatus}"`)
-    log(`serviceTaskOutcome is ${p.variables.serviceTaskOutcome}`)
-
-    await new Promise(res => setTimeout(() => res(null), 5000))
-    const historicalProcessInstance = await operate.getProcessInstance(p.processInstanceKey).catch(e => {
-        if (e.response.body.status === 404) {
-            log(chalk.redBright(`[Operate] ${e.response.body.message}`))
-            return null
-        }
-    })
-    console.log(historicalProcessInstance)
-    if (historicalProcessInstance?.state == 'COMPLETED') {
-        const variables = await operate.getJSONVariablesforProcess(historicalProcessInstance.key)
-        log(chalk.redBright('\n[Operate] Variables:', JSON.stringify(variables, null, 2)))
-    }
-
-    const bpmn = await operate.getProcessDefinitionXML(p.processDefinitionKey)
-
-    log(chalk.redBright('\n[Operate] BPMN XML:', bpmn))
-}
+// Confluence worker
+const confluencePagesPath = path.join(path.dirname(new URL(import.meta.url).pathname), 'confluence-pages.json')
+const confluencePages = JSON.parse(fs.readFileSync(confluencePagesPath, 'utf-8'))
 
 console.log(`Creating worker...`)
 zbc.createWorker({
-    taskType: 'service-task',
+    taskType: 'confluence',
+    fetchVariable: ['pageName'],
     taskHandler: job => {
-        const log = getLogger('Zeebe Worker', chalk.blueBright)
+        const log = getLogger('Confluence Worker', chalk.blueBright)
         log(`handling job of type ${job.type}`)
-        return job.complete({
-            serviceTaskOutcome: 'We did it!'
-        })
+        const pageNameRaw = job.variables?.['pageName']
+        const pageName = typeof pageNameRaw === 'string' ? pageNameRaw : undefined
+        let result
+        if (pageName && typeof confluencePages === 'object' && Object.prototype.hasOwnProperty.call(confluencePages, pageName)) {
+            result = { content: confluencePages[pageName], page: pageName }
+        } else {
+            result = { availablePages: Object.keys(confluencePages) }
+        }
+        return job.complete(result)
     }
 })
 
-console.log(`Starting human task poller...`)
-setInterval(async () => {
-    const log = getLogger('Tasklist', chalk.yellowBright)
-    const res = await tasklist.searchTasks({
-        state: 'CREATED'
-    })
-    if (res.length > 0) {
-        log(`fetched ${res.length} human tasks`)
-        res.forEach(async task => {
-            log(`claiming task ${task.id} from process ${task.processInstanceKey}`)
-            const t = await tasklist.assignTask({
-                taskId: task.id, 
-                assignee: 'demobot',
-                allowOverrideAssignment: true
-            })
-            log(`servicing human task ${t.id} from process ${t.processInstanceKey}`)
-            await tasklist.completeTask(t.id, {
-                humanTaskStatus: 'Got done'
-            })
-        })
-    } else {
-        log('No human tasks found')
+// SharePoint worker
+const spPagesPath = path.join(path.dirname(new URL(import.meta.url).pathname), 'sharepoint-pages.json')
+const spPages = JSON.parse(fs.readFileSync(spPagesPath, 'utf-8'))
+
+zbc.createWorker({
+    taskType: 'sharepoint',
+    fetchVariable: ['pageName'],
+    taskHandler: job => {
+        const log = getLogger('SharePoint Worker', chalk.greenBright)
+        log(`handling job of type ${job.type}`)
+        const pageNameRaw = job.variables?.['pageName']
+        const pageName = typeof pageNameRaw === 'string' ? pageNameRaw : undefined
+        let result
+        if (pageName && typeof spPages === 'object' && Object.prototype.hasOwnProperty.call(spPages, pageName)) {
+            result = { content: spPages[pageName], page: pageName }
+        } else {
+            result = { availablePages: Object.keys(spPages) }
+        }
+        return job.complete(result)
     }
-}, 3000)
+})
 
-
-
-main()
+// SSL Labs worker
+zbc.createWorker({
+    taskType: 'ssllabs',
+    fetchVariable: ['url'],
+    taskHandler: async job => {
+        const log = getLogger('SSL Labs Worker', chalk.yellowBright)
+        log(`handling job of type ${job.type}`)
+        const urlRaw = job.variables?.['url']
+        const domain = typeof urlRaw === 'string' ? urlRaw : undefined
+        if (!domain) {
+            return job.complete({ error: 'No URL provided.' })
+        }
+        const baseUrl = 'https://www.ssllabs.com/ssltest/analyze.html?viaform=true&hideResults=on&latest&d='
+        try {
+            // Initial request
+            const res = await fetch(baseUrl + encodeURIComponent(domain))
+            let html = await res.text()
+            await new Promise(r => setTimeout(r, 5000)) // initial 5s delay
+            let found = false
+            let attempts = 0
+            // Wait for the rating image to appear in the same HTML (simulate site auto-reload)
+            while (!found && attempts < 30) { // up to 2 minutes
+                if (html.includes('rating_')) {
+                    found = true
+                } else {
+                    log('SSL Labs report still loading, waiting 4s...')
+                    await new Promise(r => setTimeout(r, 4000))
+                    // In reality, the site reloads itself, but we can't see new content without a browser.
+                    // So we just keep waiting and checking the same HTML.
+                }
+                attempts++
+            }
+            if (found) {
+                // Find all tables with class reportTable directly in the HTML
+                const tableRegex = /<table[^>]*class=["']reportTable["'][^>]*>[\s\S]*?<\/table>/gi
+                let tableMatch
+                let allTables: Array<Array<{ label: string; value: string }>> = []
+                while ((tableMatch = tableRegex.exec(html)) !== null) {
+                    const tableHtml = tableMatch[0]
+                    // Parse table rows
+                    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi
+                    let rows: Array<{ label: string; value: string }> = []
+                    let rowMatch
+                    while ((rowMatch = rowRegex.exec(tableHtml)) !== null) {
+                        const rowHtml = rowMatch[1]
+                        // Get all cells
+                        const cellRegex = /<td[^>]*class=["']tableLabel["'][^>]*>([\s\S]*?)<\/td>\s*<td[^>]*class=["']tableCell["'][^>]*>([\s\S]*?)<\/td>/i
+                        const cellMatch = cellRegex.exec(rowHtml)
+                        if (cellMatch) {
+                            // Remove HTML tags from cell content
+                            const label = cellMatch[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+                            const value = cellMatch[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+                            rows.push({ label, value })
+                        }
+                    }
+                    allTables.push(rows)
+                }
+                return job.complete({ report: allTables, url: domain })
+            } else {
+                return job.complete({ error: 'SSL Labs report not ready after multiple attempts.', url: domain })
+            }
+        } catch (e) {
+            log(`Error fetching SSL Labs report: ${e}`)
+            return job.complete({ error: 'Failed to fetch SSL Labs report.', url: domain })
+        }
+    }
+})

@@ -1,0 +1,7 @@
+{
+  "ecic-overview": "<h1>EC/IC Process Flow Overview</h1>\n<p>This SharePoint page provides a comprehensive overview of the External/Internal Connections (EC/IC) process for IT assets. It includes process diagrams, approval workflows, and key contacts. Access the <a href='/sharepoint/ecic-diagram'>EC/IC Process Diagram</a> for a visual guide.</p>",
+  "connection-templates": "<h1>Connection Request Templates</h1>\n<p>Download standardized templates for submitting EC/IC connection requests. These templates ensure all required information is provided for a smooth approval process. <a href='/sharepoint/templates/connection-request.docx'>Download Connection Request Template</a></p>",
+  "security-guidelines": "<h1>Security Guidelines for EC/IC</h1>\n<p>Review the bank's security guidelines for establishing external and internal connections. This page covers encryption requirements, authentication standards, and compliance checklists. <a href='/sharepoint/security-guidelines'>View Security Guidelines</a></p>",
+  "training-materials": "<h1>Training Materials</h1>\n<p>Access training videos and documentation to help IT staff understand the EC/IC process flow, security requirements, and best practices. <a href='/sharepoint/training/ecic-training.mp4'>Watch EC/IC Training Video</a></p>",
+  "contacts": "<h1>Key Contacts</h1>\n<p>Find contact information for the EC/IC process owners, IT security team, and support staff. <a href='/sharepoint/contacts'>View Contacts</a></p>"
+}
