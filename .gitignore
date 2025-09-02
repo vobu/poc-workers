@@ -3,3 +3,7 @@ node_modules
 .envrc
 .env*
 .DS_Store
+
+# Backup files that might contain sensitive data
+*.bak
+task-definition.json.bak

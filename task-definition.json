@@ -1,0 +1,121 @@
+{
+  "family": "leon-worker-ing-task-def",
+  "executionRoleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/leon-ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "tags": [
+    {
+      "key": "Project",
+      "value": "leon-worker-ing"
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "leon-worker-ing",
+      "image": "YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/leon-worker-ing:latest",
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/leon-worker-ing",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "ZEEBE_ADDRESS",
+          "valueFrom": "/leon-worker-ing/ZEEBE_ADDRESS"
+        },
+        {
+          "name": "ZEEBE_CLIENT_ID",
+          "valueFrom": "/leon-worker-ing/ZEEBE_CLIENT_ID"
+        },
+        {
+          "name": "ZEEBE_CLIENT_SECRET",
+          "valueFrom": "/leon-worker-ing/ZEEBE_CLIENT_SECRET"
+        },
+        {
+          "name": "ZEEBE_AUTHORIZATION_SERVER_URL",
+          "valueFrom": "/leon-worker-ing/ZEEBE_AUTHORIZATION_SERVER_URL"
+        },
+        {
+          "name": "ZEEBE_REST_ADDRESS",
+          "valueFrom": "/leon-worker-ing/ZEEBE_REST_ADDRESS"
+        },
+        {
+          "name": "ZEEBE_GRPC_ADDRESS",
+          "valueFrom": "/leon-worker-ing/ZEEBE_GRPC_ADDRESS"
+        },
+        {
+          "name": "ZEEBE_TOKEN_AUDIENCE",
+          "valueFrom": "/leon-worker-ing/ZEEBE_TOKEN_AUDIENCE"
+        },
+        {
+          "name": "CAMUNDA_TOKEN_AUDIENCE",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_TOKEN_AUDIENCE"
+        },
+        {
+          "name": "CAMUNDA_CLUSTER_ID",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLUSTER_ID"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_ID",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_ID"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_SECRET",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_SECRET"
+        },
+        {
+          "name": "CAMUNDA_CLUSTER_REGION",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLUSTER_REGION"
+        },
+        {
+          "name": "CAMUNDA_CREDENTIALS_SCOPES",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CREDENTIALS_SCOPES"
+        },
+        {
+          "name": "CAMUNDA_TASKLIST_BASE_URL",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_TASKLIST_BASE_URL"
+        },
+        {
+          "name": "CAMUNDA_OPERATE_BASE_URL",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_OPERATE_BASE_URL"
+        },
+        {
+          "name": "CAMUNDA_OAUTH_URL",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_OAUTH_URL"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_MODE",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_MODE"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_AUTH_CLIENTID",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_AUTH_CLIENTID"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_AUTH_CLIENTSECRET",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_AUTH_CLIENTSECRET"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_CLOUD_CLUSTERID",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_CLOUD_CLUSTERID"
+        },
+        {
+          "name": "CAMUNDA_CLIENT_CLOUD_REGION",
+          "valueFrom": "/leon-worker-ing/CAMUNDA_CLIENT_CLOUD_REGION"
+        }
+      ]
+    }
+  ]
+}
