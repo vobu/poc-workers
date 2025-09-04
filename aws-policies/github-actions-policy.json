@@ -21,7 +21,9 @@
                 "ecs:UpdateService",
                 "ecs:DescribeServices",
                 "ecs:DescribeTaskDefinition",
-                "ecs:RegisterTaskDefinition"
+                "ecs:RegisterTaskDefinition",
+                "ecs:TagResource",
+                "ecs:UntagResource"
             ],
             "Resource": "*"
         },

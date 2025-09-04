@@ -36,6 +36,8 @@ aws iam tag-policy \
     --tags Key=Project,Value=leon-worker-ing
 ```
 
+**Note**: The policy includes `ecs:TagResource` and `ecs:UntagResource` permissions for ECS resource management.
+
 Replace `YOUR_ACCOUNT_ID` with your actual AWS account ID.
 
 ### 3. Attach Policy to GitHub Actions User
