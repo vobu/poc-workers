@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test --experimental-strip-types",
     "start": "node --experimental-strip-types src/index.ts",
     "dev": "DEBUG=camunda:*,-camunda:worker:verbose node --experimental-strip-types --watch --env-file .env src/index.ts"
     
