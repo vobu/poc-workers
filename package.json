@@ -1,24 +1,25 @@
 {
-  "name": "c8-sdk-demo",
+  "name": "c8-node-work",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --loader ts-node/esm src/index.ts"
+    "start": "node --experimental-strip-types src/index.ts",
+    "dev": "DEBUG=camunda:*,-camunda:worker:verbose node --experimental-strip-types --watch --env-file .env src/index.ts"
+    
   },
   "keywords": [],
-  "author": "josh.wulf@camunda.com",
+  "author": "volker.buzek@camunda.com",
   "license": "ISC",
   "type": "module",
-  "devDependencies": {
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.0"
-  },
   "dependencies": {
     "@camunda8/sdk": "^8.7.5",
     "chalk": "^5.0.0",
     "dotenv": "^16.0.3",
     "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": "^24"
   }
 }
