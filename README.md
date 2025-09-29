@@ -16,17 +16,18 @@ You can run this demo against Camunda 8 Platform SaaS (create a free account via
 
 - Create a cluster in Camunda 8 Platform SaaS
 - Create an API client in the Web Console (see the [client credential setup guide](https://docs.camunda.io/docs/next/guides/setup-client-connection-credentials/))
-- Copy `.env.example` to `.env` and fill in your credentials:
+- create a `.env` and fill in your credentials:
+
+- Run the application:
 
 ```bash
-cp .env.example .env
-# Edit .env and add your values
+npm start
 ```
 
-- Run the application using Docker:
-
+- Run the dev version:
+  
 ```bash
-docker-compose up --build
+npm run dev
 ```
 
 
