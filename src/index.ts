@@ -1,6 +1,4 @@
 import { Camunda8 } from "@camunda8/sdk"
-import fetch from "node-fetch"
-
 import * as path from "path"
 import * as fs from "fs"
 
