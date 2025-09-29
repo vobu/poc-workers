@@ -1,7 +1,6 @@
 import { Camunda8 } from "@camunda8/sdk"
 import fetch from "node-fetch"
 
-import chalk from "chalk"
 import * as path from "path"
 import * as fs from "fs"
 
@@ -11,7 +10,7 @@ import "./health.ts"
 const c8 = new Camunda8()
 const zbc = c8.getZeebeGrpcApiClient()
 
-const getLogger = (prefix: string, color: any) => (msg: string) => console.log(color(`[${prefix}] ${msg}`))
+const getLogger = (prefix: string) => (msg: string) => console.log(`[${prefix}] ${msg}`)
 
 // Confluence worker
 const confluencePagesPath = path.join(path.dirname(new URL(import.meta.url).pathname), "confluence-pages.json")
@@ -23,7 +22,7 @@ zbc.createWorker({
   taskType: "confluence",
   fetchVariable: ["pageName"],
   taskHandler: (job) => {
-    const log = getLogger("Confluence Worker", chalk.blueBright)
+    const log = getLogger("Confluence Worker")
     log(`=== JOB START ===`)
     log(`Job Key: ${job.key}`)
     log(`Job Type: ${job.type}`)
@@ -72,7 +71,7 @@ zbc.createWorker({
   taskType: "sharepoint",
   fetchVariable: ["pageName"],
   taskHandler: (job) => {
-    const log = getLogger("SharePoint Worker", chalk.greenBright)
+    const log = getLogger("SharePoint Worker")
     log(`=== JOB START ===`)
     log(`Job Key: ${job.key}`)
     log(`Job Type: ${job.type}`)
@@ -113,7 +112,7 @@ zbc.createWorker({
   taskType: "ssllabs",
   fetchVariable: ["url"],
   taskHandler: async (job) => {
-    const log = getLogger("SSL Labs Worker", chalk.yellowBright)
+    const log = getLogger("SSL Labs Worker")
     log(`=== JOB START ===`)
     log(`Job Key: ${job.key}`)
     log(`Job Type: ${job.type}`)

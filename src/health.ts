@@ -8,5 +8,5 @@ http.createServer((req, res) => {
   res.writeHead(418)
   res.end()
 }).listen(process.env.PORT || 3000, () => {
-  console.log(`Health check server running on port ${process.env.PORT || 3000}`)
+  console.log(`[health] running at /health on port ${process.env.PORT || 3000}`)
 })

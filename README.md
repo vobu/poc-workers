@@ -7,7 +7,7 @@ This project includes three example workers:
 - **SharePoint Worker**: Serves page content from a local JSON file.
 - **SSL Labs Worker**: Fetches and parses SSL Labs reports for a given domain.
 
-You can run this demo against Camunda 8 Platform SaaS (get a free account [here](https://signup.camunda.com/accounts)) or a self-managed stack via docker-compose ([setup instructions](https://github.com/camunda/camunda-8-js-sdk/blob/main/docker/docker-compose-multitenancy.yml)).
+You can run this demo against Camunda 8 Platform SaaS (create a free account via the [Camunda signup page](https://signup.camunda.com/accounts)) or a self-managed stack via docker-compose (follow the [multitenancy setup instructions](https://github.com/camunda/camunda-8-js-sdk/blob/main/docker/docker-compose-multitenancy.yml)).
 
 
 ## Setup
@@ -15,19 +15,19 @@ You can run this demo against Camunda 8 Platform SaaS (get a free account [here]
 - Clone the repository locally
 
 - Create a cluster in Camunda 8 Platform SaaS
-- Create an API client in the Web Console (instructions [here](https://docs.camunda.io/docs/next/guides/setup-client-connection-credentials/))
+- Create an API client in the Web Console (see the [client credential setup guide](https://docs.camunda.io/docs/next/guides/setup-client-connection-credentials/))
 - Copy `.env.example` to `.env` and fill in your credentials:
 
-	```bash
-	cp .env.example .env
-	# Edit .env and add your values
-	```
+```bash
+cp .env.example .env
+# Edit .env and add your values
+```
 
 - Run the application using Docker:
 
-	```bash
-	docker-compose up --build
-	```
+```bash
+docker-compose up --build
+```
 
 
 ## Operation
@@ -38,7 +38,7 @@ This application starts three Zeebe workers:
 - **SharePoint Worker**: Handles jobs of type `sharepoint`. It looks up a page name in `sharepoint-pages.json` and returns the page content if found, or a list of available pages if not.
 - **SSL Labs Worker**: Handles jobs of type `ssllabs`. It fetches an SSL Labs report for a given domain by scraping the public SSL Labs site, waits for the report to be ready, and parses the results into structured data. If the report is not ready after several attempts, it returns an error.
 
-Each worker logs its activity to the console with colored prefixes for easy identification. The workers use environment variables for configuration, which are loaded from the `.env` file.
+Each worker logs its activity to the console with simple prefixes for easy identification. The workers use environment variables for configuration, which are loaded from the `.env` file.
 
 ## Credentials
 
@@ -73,3 +73,4 @@ export CAMUNDA_TENANT_ID='<default>'
 # TLS for gRPC is on by default. If the Zeebe broker is not secured by TLS, turn it off
 export CAMUNDA_SECURE_CONNECTION=false
 ```
+
